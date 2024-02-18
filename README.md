@@ -14,6 +14,8 @@ the data layer I decided to use *sqlx* in combination with the *pgx* driver.
 
 ## Running locally
 
+Before running the app create a ```app.env``` file and copy all of the configuration from ```app.env.example```.
+I recommend leaving the defaults but you can optionally add your own email and password. Then simply run:
 ```
 $ docker-compose up --build
 ```
