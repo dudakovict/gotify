@@ -1,0 +1,894 @@
+basePath: /api/v1
+definitions:
+  authgrp.loginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  authgrp.loginResponse:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: string
+      refresh_token:
+        type: string
+      refresh_token_expires_at:
+        type: string
+      session_id:
+        type: string
+      user:
+        $ref: '#/definitions/authgrp.userResponse'
+    type: object
+  authgrp.registerReq:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  authgrp.userResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
+  ntfgrp.createNotificationRequest:
+    properties:
+      message:
+        type: string
+      topic_id:
+        type: string
+    required:
+    - message
+    - topic_id
+    type: object
+  ntfgrp.notificationResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      topic_id:
+        type: string
+    type: object
+  subgrp.createSubscriptionRequest:
+    properties:
+      topic_id:
+        type: string
+      user_id:
+        type: string
+    required:
+    - topic_id
+    - user_id
+    type: object
+  subgrp.subscriptionResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      topic_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  topicgrp.createTopicRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  topicgrp.topicResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  usergrp.createUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+    required:
+    - email
+    - password
+    - roles
+    type: object
+  usergrp.updateUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+      verified:
+        type: boolean
+    type: object
+  usergrp.userResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: Auth & Notifications API.
+  title: Gotify API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user with the provided email and password.
+      parameters:
+      - description: Login Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/authgrp.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/authgrp.loginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login user
+      tags:
+      - Auth
+  /notifications:
+    get:
+      description: Queries notifications based on page number, rows per page, and
+        topic ID.
+      parameters:
+      - description: Page Number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Rows Per Page
+        in: query
+        name: rows
+        required: true
+        type: integer
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ntfgrp.notificationResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Query notifications
+      tags:
+      - Notification
+    post:
+      consumes:
+      - application/json
+      description: Creates a new notification with the provided topic ID and message.
+      parameters:
+      - description: Create Notification Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ntfgrp.createNotificationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ntfgrp.notificationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new notification
+      tags:
+      - Notification
+  /notifications/{id}:
+    delete:
+      description: Deletes a notification with the specified ID.
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a notification by ID
+      tags:
+      - Notification
+    get:
+      description: Queries a notification by its ID.
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ntfgrp.notificationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Query a notification by ID
+      tags:
+      - Notification
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user with the provided email and password.
+      parameters:
+      - description: Register Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/authgrp.registerReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/authgrp.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - Auth
+  /subscriptions:
+    get:
+      description: Queries subscriptions based on page number and rows per page.
+      parameters:
+      - description: Page Number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Rows Per Page
+        in: query
+        name: rows
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/subgrp.subscriptionResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Query subscriptions
+      tags:
+      - Subscription
+    post:
+      consumes:
+      - application/json
+      description: Creates a new subscription with the provided topic ID and user
+        ID.
+      parameters:
+      - description: Create Subscription Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/subgrp.createSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/subgrp.subscriptionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new subscription
+      tags:
+      - Subscription
+  /subscriptions/{id}:
+    delete:
+      description: Deletes a subscription with the specified ID.
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a subscription by ID
+      tags:
+      - Subscription
+    get:
+      description: Queries a subscription by its ID.
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/subgrp.subscriptionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Query a subscription by ID
+      tags:
+      - Subscription
+  /topics:
+    get:
+      description: Queries topics based on page number and rows per page.
+      parameters:
+      - description: Page Number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Rows Per Page
+        in: query
+        name: rows
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/topicgrp.topicResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Query topics
+      tags:
+      - Topic
+    post:
+      consumes:
+      - application/json
+      description: Creates a new topic with the provided name.
+      parameters:
+      - description: Create Topic Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/topicgrp.createTopicRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/topicgrp.topicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new topic
+      tags:
+      - Topic
+  /topics/{id}:
+    get:
+      description: Queries a topic by its ID.
+      parameters:
+      - description: Topic ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/topicgrp.topicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Query a topic by ID
+      tags:
+      - Topic
+  /users:
+    get:
+      description: Queries users based on page number and rows per page.
+      parameters:
+      - description: Page Number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Rows Per Page
+        in: query
+        name: rows
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/usergrp.userResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Query users
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user with the provided email, roles, and password.
+      parameters:
+      - description: Create User Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/usergrp.createUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/usergrp.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new user
+      tags:
+      - User
+  /users/{id}:
+    delete:
+      description: Deletes a user by its ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a user
+      tags:
+      - User
+    get:
+      description: Queries a user by its ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usergrp.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Query a user by ID
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Updates a user with the provided email, roles, password, and verification
+        status.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update User Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/usergrp.updateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usergrp.userResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a user
+      tags:
+      - User
+  /verify:
+    get:
+      consumes:
+      - application/json
+      description: Verify user with the provided ID.
+      parameters:
+      - description: User ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verify user
+      tags:
+      - Verification
+swagger: "2.0"

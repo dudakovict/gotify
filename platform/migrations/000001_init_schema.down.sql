@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS subscriptions;
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS topics;
+DROP TABLE IF EXISTS verifications;
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS users;
