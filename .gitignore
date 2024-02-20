@@ -58,3 +58,5 @@ _testmain.go
 .vscode
 
 *.env
+
+*.log

@@ -1,0 +1,71 @@
+Project gotify {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # Gotify Database
+  '''
+}
+
+Table "users" {
+  "id" UUID [pk]
+  "email" VARCHAR [unique, not null]
+  "roles" "VARCHAR[]" [not null]
+  "hashed_password" BYTEA [not null]
+  "verified" BOOL [not null, default: false]
+  "created_at" TIMESTAMPTZ [not null, default: `now()`]
+  "updated_at" TIMESTAMPTZ
+}
+
+Table "sessions" {
+  "id" UUID [pk]
+  "user_id" UUID [not null]
+  "refresh_token" VARCHAR [not null]
+  "user_agent" VARCHAR [not null]
+  "client_ip" VARCHAR [not null]
+  "is_blocked" BOOLEAN [not null, default: false]
+  "expires_at" TIMESTAMPTZ [not null]
+  "created_at" TIMESTAMPTZ [not null, default: `now()`]
+}
+
+Table "verifications" {
+  "id" UUID [pk]
+  "user_id" UUID [not null]
+  "email" VARCHAR [not null]
+  "code" VARCHAR [not null]
+  "used" BOOL [not null, default: false]
+  "created_at" TIMESTAMPTZ [not null, default: `now()`]
+  "expired_at" TIMESTAMPTZ [not null, default: `now()+interval'15 minutes'`]
+}
+
+Table "topics" {
+  "id" UUID [pk]
+  "name" VARCHAR [not null]
+  "created_at" TIMESTAMPTZ [not null, default: `now()`]
+}
+
+Table "notifications" {
+  "id" UUID [pk]
+  "topic_id" UUID [not null]
+  "message" TEXT
+  "created_at" TIMESTAMPTZ [not null, default: `now()`]
+}
+
+Table "subscriptions" {
+  "id" UUID [pk]
+  "topic_id" UUID [not null]
+  "user_id" UUID [not null]
+  "created_at" TIMESTAMPTZ [not null, default: `now()`]
+
+Indexes {
+  (topic_id, user_id) [unique, name: "unique_sub_topic_user"]
+}
+}
+
+Ref:"users"."id" < "sessions"."user_id" [delete: cascade]
+
+Ref:"users"."id" < "verifications"."user_id" [delete: cascade]
+
+Ref:"topics"."id" < "notifications"."topic_id" [delete: cascade]
+
+Ref:"topics"."id" < "subscriptions"."topic_id" [delete: cascade]
+
+Ref:"users"."id" < "subscriptions"."user_id" [delete: cascade]

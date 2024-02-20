@@ -90,6 +90,12 @@ mock:
 docs:
 	swag init -g cmd/main.go --output docs/swagger
 
+db-docs:
+	dbdocs build docs/db.dbml
+
+db-schema:
+	dbml2sql --postgres -o docs/schema.sql docs/db.dbml
+
 # ==============================================================================
 # Modules support
 
@@ -126,4 +132,4 @@ docker-clean:
 	docker system prune -f
 	docker volume prune -af
 
-.PHONY: gotify network postgres createdb dropdb redis migrateup migrateup1 migratedown migratedown1 new_migration test-only test-race lint vuln-check cover-profile cover test mock docs deps-reset tidy deps-list deps-upgrade deps-cleancache list docker-down docker-clean
+.PHONY: gotify network postgres createdb dropdb redis migrateup migrateup1 migratedown migratedown1 new_migration test-only test-race lint vuln-check cover-profile cover test mock docs db-docs db-schema deps-reset tidy deps-list deps-upgrade deps-cleancache list docker-down docker-clean

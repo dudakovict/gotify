@@ -22,7 +22,9 @@ $ docker-compose up --build
 
 ## Docs
 
-Docs are served from the API [here](http://localhost:3000/swagger/index.html) when the server is running.
+API documentation is served [here](http://localhost:3000/swagger/index.html) when the server is running.
+
+Database documentation can be accessed [here](https://dbdocs.io/dudakovict/gotify).
 
 ## Features
 - **Authorization/Authentication**: Secure register & login system to protect users accounts.
