@@ -1,4 +1,4 @@
-VERSION := 1.0
+VERSION := 1.0.1
 DB_URL=postgres://root:secret@localhost:5432/gotify?sslmode=disable
 
 # ==============================================================================

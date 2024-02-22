@@ -31,6 +31,7 @@ func Routes(api fiber.Router, cfg Config) {
 
 	api.Post("/register", hdl.register)
 	api.Post("/login", hdl.login)
+	api.Post("/token", hdl.token)
 }
 
 func errorResponse(err error) fiber.Map {

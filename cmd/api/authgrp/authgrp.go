@@ -180,7 +180,8 @@ func (h *handlers) login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(errorResponse(err))
 	}
 
-	session, err := h.session.Create(session.NewSession{
+	session, err := h.session.Create(session.Session{
+		ID:           refreshPayload.ID,
 		UserID:       usr.ID,
 		RefreshToken: refreshToken,
 		UserAgent:    c.Get("User-Agent"),
@@ -199,6 +200,79 @@ func (h *handlers) login(c *fiber.Ctx) error {
 		RefreshToken:          refreshToken,
 		RefreshTokenExpiresAt: refreshPayload.ExpiresAt,
 		User:                  newUserResponse(usr),
+	}
+
+	return c.Status(fiber.StatusOK).JSON(rsp)
+}
+
+type tokenRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
+}
+
+type tokenResponse struct {
+	AccessToken          string    `json:"access_token"`
+	AccessTokenExpiresAt time.Time `json:"access_token_expires_at"`
+}
+
+// @Summary Renew access token
+// @Description Renews an access token with a provided refresh token.
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body tokenRequest true "Token Request Body"
+// @Success 200 {object} tokenResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /token [post]
+func (h *handlers) token(c *fiber.Ctx) error {
+	var req tokenRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(errorResponse(err))
+	}
+
+	if err := validate.Check(req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(errorResponse(err))
+	}
+
+	refreshPayload, err := h.maker.VerifyToken(req.RefreshToken)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(errorResponse(user.ErrAuthorizationFailure))
+	}
+
+	sessn, err := h.session.QueryByID(refreshPayload.ID)
+	if err != nil {
+		if errors.Is(err, session.ErrNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(errorResponse(err))
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(errorResponse(err))
+	}
+
+	if sessn.IsBlocked {
+		return c.Status(fiber.StatusUnauthorized).JSON(errorResponse(errors.New("session is blocked")))
+	}
+
+	if sessn.UserID != refreshPayload.UserID {
+		return c.Status(fiber.StatusUnauthorized).JSON(errorResponse(errors.New("user mismatch")))
+	}
+
+	if sessn.RefreshToken != req.RefreshToken {
+		return c.Status(fiber.StatusUnauthorized).JSON(errorResponse(errors.New("refresh token mismatch")))
+	}
+
+	if time.Now().After(sessn.ExpiresAt) {
+		return c.Status(fiber.StatusUnauthorized).JSON(errorResponse(errors.New("session is expired")))
+	}
+
+	accessToken, accessPayload, err := h.maker.CreateToken(refreshPayload.UserID, refreshPayload.Roles, h.accessTokenDuration)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(errorResponse(err))
+	}
+
+	rsp := tokenResponse{
+		AccessToken:          accessToken,
+		AccessTokenExpiresAt: accessPayload.ExpiresAt,
 	}
 
 	return c.Status(fiber.StatusOK).JSON(rsp)

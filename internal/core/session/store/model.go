@@ -15,6 +15,7 @@ type dbSession struct {
 	ClientIP     string    `db:"client_ip"`
 	IsBlocked    bool      `db:"is_blocked"`
 	ExpiresAt    time.Time `db:"expires_at"`
+	CreatedAt    time.Time `db:"created_at"`
 }
 
 func toDBSession(sessn session.Session) dbSession {
@@ -26,6 +27,7 @@ func toDBSession(sessn session.Session) dbSession {
 		ClientIP:     sessn.ClientIP,
 		IsBlocked:    sessn.IsBlocked,
 		ExpiresAt:    sessn.ExpiresAt,
+		CreatedAt:    sessn.CreatedAt.UTC(),
 	}
 }
 
@@ -38,5 +40,6 @@ func toCoreSession(dbSessn dbSession) session.Session {
 		ClientIP:     dbSessn.ClientIP,
 		IsBlocked:    dbSessn.IsBlocked,
 		ExpiresAt:    dbSessn.ExpiresAt,
+		CreatedAt:    dbSessn.CreatedAt.In(time.Local),
 	}
 }

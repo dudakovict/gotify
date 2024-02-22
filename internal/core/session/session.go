@@ -36,17 +36,7 @@ func NewCore(log *zerolog.Logger, storer Storer) *Core {
 }
 
 // Create adds a new session to the system.
-func (c *Core) Create(ns NewSession) (Session, error) {
-	sessn := Session{
-		ID:           uuid.New(),
-		UserID:       ns.UserID,
-		RefreshToken: ns.RefreshToken,
-		UserAgent:    ns.UserAgent,
-		ClientIP:     ns.ClientIP,
-		IsBlocked:    ns.IsBlocked,
-		ExpiresAt:    ns.ExpiresAt,
-	}
-
+func (c *Core) Create(sessn Session) (Session, error) {
 	if err := c.storer.Create(sessn); err != nil {
 		return Session{}, fmt.Errorf("create: %w", err)
 	}
