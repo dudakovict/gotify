@@ -37,6 +37,20 @@ definitions:
     - email
     - password
     type: object
+  authgrp.tokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  authgrp.tokenResponse:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: string
+    type: object
   authgrp.userResponse:
     properties:
       created_at:
@@ -556,6 +570,48 @@ paths:
       summary: Query a subscription by ID
       tags:
       - Subscription
+  /token:
+    post:
+      consumes:
+      - application/json
+      description: Renews an access token with a provided refresh token.
+      parameters:
+      - description: Token Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/authgrp.tokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/authgrp.tokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Renew access token
+      tags:
+      - Auth
   /topics:
     get:
       description: Queries topics based on page number and rows per page.
