@@ -15,14 +15,5 @@ type Session struct {
 	ClientIP     string
 	IsBlocked    bool
 	ExpiresAt    time.Time
-}
-
-// NewSession contains information needed to create a new session.
-type NewSession struct {
-	UserID       uuid.UUID
-	RefreshToken string
-	UserAgent    string
-	ClientIP     string
-	IsBlocked    bool
-	ExpiresAt    time.Time
+	CreatedAt    time.Time
 }
