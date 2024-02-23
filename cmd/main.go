@@ -8,7 +8,6 @@ import (
 	"os/signal"
 	"runtime"
 	"syscall"
-	"time"
 
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/dudakovict/gotify/cmd/api"
@@ -49,7 +48,6 @@ func main() {
 
 	if err := run(log); err != nil {
 		log.Error().Err(err)
-		time.Sleep(time.Second)
 		os.Exit(1)
 	}
 }
