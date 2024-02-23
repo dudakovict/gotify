@@ -150,7 +150,7 @@ func (h *handlers) delete(c *fiber.Ctx) error {
 // @Produce json
 // @Param page query integer true "Page Number"
 // @Param rows query integer true "Rows Per Page"
-// @Param user_id query string true "Topic ID"
+// @Param topic_id query string true "Topic ID"
 // @Success 200 {array} notificationResponse
 // @Failure 400 {object} map[string]interface{}
 // @Failure 403 {object} map[string]interface{}
