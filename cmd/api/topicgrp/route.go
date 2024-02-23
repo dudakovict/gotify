@@ -8,6 +8,7 @@ import (
 	"github.com/dudakovict/gotify/pkg/maker"
 	"github.com/dudakovict/gotify/pkg/mid"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog"
 )
@@ -20,7 +21,7 @@ type Config struct {
 
 func Routes(api fiber.Router, cfg Config) {
 	usrCore := user.NewCore(cfg.Log, userdb.NewStore(cfg.Log, cfg.DB))
-	tpcCore := topic.NewCore(cfg.Log, topicdb.NewStore(cfg.Log, cfg.DB))
+	tpcCore := topic.NewCore(cfg.Log, topicdb.NewStore(cfg.Log, cfg.DB), uuid.New)
 
 	hdl := new(tpcCore)
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/dudakovict/gotify/pkg/util"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 )
@@ -28,20 +29,22 @@ type Storer interface {
 type Core struct {
 	log    *zerolog.Logger
 	storer Storer
+	gen    util.Generator
 }
 
 // NewCore constructs a user core API for use.
-func NewCore(log *zerolog.Logger, storer Storer) *Core {
+func NewCore(log *zerolog.Logger, storer Storer, gen util.Generator) *Core {
 	return &Core{
 		log:    log,
 		storer: storer,
+		gen:    gen,
 	}
 }
 
 // Create adds a new user to the system.
 func (c *Core) Create(nt NewTopic) (Topic, error) {
 	topic := Topic{
-		ID:   uuid.New(),
+		ID:   c.gen(),
 		Name: nt.Name,
 	}
 

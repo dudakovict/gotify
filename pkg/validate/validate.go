@@ -2,6 +2,7 @@
 package validate
 
 import (
+	"log"
 	"reflect"
 	"strings"
 
@@ -26,7 +27,9 @@ func init() {
 	translator, _ = ut.New(en.New(), en.New()).GetTranslator("en")
 
 	// Register the english error messages for use.
-	en_translations.RegisterDefaultTranslations(validate, translator)
+	if err := en_translations.RegisterDefaultTranslations(validate, translator); err != nil {
+		log.Fatalf("register translations: %v", err)
+	}
 
 	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]

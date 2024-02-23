@@ -11,6 +11,7 @@ import (
 	"github.com/dudakovict/gotify/internal/core/verification"
 	verificationdb "github.com/dudakovict/gotify/internal/core/verification/store"
 	"github.com/dudakovict/gotify/pkg/mailer"
+	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog"
@@ -40,7 +41,7 @@ func New(cfg Config) *Worker {
 	usrCore := user.NewCore(cfg.Log, userdb.NewStore(cfg.Log, cfg.DB))
 	vrfCore := verification.NewCore(cfg.Log, usrCore, verificationdb.NewStore(cfg.Log, cfg.DB))
 	ntfCore := notification.NewCore(cfg.Log, notificationdb.NewStore(cfg.Log, cfg.DB))
-	tpcCore := topic.NewCore(cfg.Log, topicdb.NewStore(cfg.Log, cfg.DB))
+	tpcCore := topic.NewCore(cfg.Log, topicdb.NewStore(cfg.Log, cfg.DB), uuid.New)
 
 	return &Worker{
 		TaskDistributor: newRedisTaskDistributor(cfg.Log, cfg.RedisOpt),

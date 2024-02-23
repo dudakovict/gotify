@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwqyz"
@@ -33,3 +35,6 @@ func RandomString(n int) string {
 func RandomEmail() string {
 	return fmt.Sprintf("%s@email.com", RandomString(6))
 }
+
+// Generator knows how to generate a UUID
+type Generator func() uuid.UUID

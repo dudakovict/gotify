@@ -2,7 +2,6 @@ package mid
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/dudakovict/gotify/internal/core/user"
 	"github.com/dudakovict/gotify/pkg/maker"
@@ -30,8 +29,6 @@ func GetUser(usrCore *user.Core) fiber.Handler {
 				"error": err.Error(),
 			})
 		}
-
-		fmt.Println(usr)
 
 		c.Locals(UserKey, usr)
 		return c.Next()
